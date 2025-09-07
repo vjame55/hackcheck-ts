@@ -11,6 +11,8 @@ export type SearchResult = {
   ip_address: string;
   phone_number: string;
   hash: string;
+  other_fields: Record<string, string>;
+  sensitive_fields: Record<string, string>;
   source: Source;
 };
 
