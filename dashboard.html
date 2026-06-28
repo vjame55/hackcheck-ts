@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="Interactive dashboard for the hackingtool plugin — 183+ penetration testing and security tools across 20+ categories, with search, filters, and best-practice prompts." />
+<title>HackingTool Dashboard — 183+ Security Tools</title>
+<style>
+  :root {
+    --bg-0: #0f0a1f;
+    --bg-1: #1a1033;
+    --surface: rgba(255, 255, 255, 0.04);
+    --surface-2: rgba(255, 255, 255, 0.07);
+    --border: rgba(168, 139, 250, 0.18);
+    --border-strong: rgba(168, 139, 250, 0.45);
+    --grad-1: #7c3aed;
+    --grad-2: #a855f7;
+    --grad-3: #c084fc;
+    --accent: #c084fc;
+    --accent-soft: #a78bfa;
+    --text: #f3f0ff;
+    --text-dim: #b9add6;
+    --text-faint: #8a7caa;
+    --good: #34d399;
+    --warn: #fbbf24;
+    --danger: #f87171;
+    --shadow: 0 18px 50px -12px rgba(124, 58, 237, 0.45);
+    --radius: 16px;
+    --radius-sm: 10px;
+    font-synthesis: none;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1200px 700px at 12% -8%, rgba(124, 58, 237, 0.32), transparent 60%),
+      radial-gradient(900px 600px at 100% 0%, rgba(192, 132, 252, 0.20), transparent 55%),
+      linear-gradient(160deg, var(--bg-0) 0%, var(--bg-1) 55%, #0c0719 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  /* ---------- Header ---------- */
+  header.hero {
+    position: relative;
+    border-radius: 22px;
+    padding: 40px 34px;
+    background:
+      linear-gradient(135deg, rgba(124, 58, 237, 0.55), rgba(168, 85, 247, 0.30) 55%, rgba(192, 132, 252, 0.15)),
+      var(--surface);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  header.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(600px 220px at 88% 10%, rgba(255, 255, 255, 0.14), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid var(--border);
+    padding: 6px 13px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+  }
+  .hero-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 10px var(--good); }
+  header.hero h1 {
+    font-size: clamp(28px, 5vw, 46px);
+    line-height: 1.08;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  header.hero h1 .accent {
+    background: linear-gradient(90deg, #fff, var(--grad-3));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header.hero p.tag {
+    max-width: 640px;
+    color: rgba(255, 255, 255, 0.86);
+    font-size: clamp(15px, 2.2vw, 17px);
+  }
+
+  /* ---------- Stats ---------- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 28px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 18px;
+    text-align: center;
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  }
+  .stat:hover { transform: translateY(-4px); border-color: var(--border-strong); background: var(--surface-2); }
+  .stat .num {
+    font-size: clamp(26px, 4vw, 36px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(90deg, var(--grad-3), var(--grad-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat .label { color: var(--text-dim); font-size: 13px; margin-top: 4px; }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin: 34px 0 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    border: 0;
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 14.5px;
+    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.18s ease, background 0.18s ease;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+    box-shadow: 0 6px 18px -6px rgba(124, 58, 237, 0.8);
+  }
+
+  .panel { display: none; animation: fade 0.35s ease; }
+  .panel.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-title {
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 6px 0 4px;
+  }
+  .section-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 20px; }
+
+  /* ---------- Controls ---------- */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 22px;
+    align-items: center;
+  }
+  .search-box {
+    position: relative;
+    flex: 1 1 280px;
+  }
+  .search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); opacity: 0.6; }
+  .search-box input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 13px 16px 13px 42px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .search-box input::placeholder { color: var(--text-faint); }
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--border-strong);
+    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15);
+  }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 15px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.16s ease;
+    font-family: inherit;
+  }
+  .chip:hover { color: var(--text); border-color: var(--border-strong); }
+  .chip.active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+    border-color: transparent;
+  }
+
+  /* ---------- Category grid ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--grad-1), var(--grad-3));
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  .card:hover { transform: translateY(-5px); border-color: var(--border-strong); background: var(--surface-2); box-shadow: var(--shadow); }
+  .card:hover::before { opacity: 1; }
+  .card .icon {
+    font-size: 26px;
+    width: 50px; height: 50px;
+    display: grid; place-items: center;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.35), rgba(192, 132, 252, 0.18));
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+  .card h3 { font-size: 16.5px; font-weight: 700; margin-bottom: 6px; }
+  .card p { color: var(--text-dim); font-size: 13.5px; margin-bottom: 14px; }
+  .card .meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .card .count {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(192, 132, 252, 0.12);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+  .card .tools-peek { font-size: 12px; color: var(--text-faint); }
+
+  /* ---------- Detailed list ---------- */
+  .cat-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .cat-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.16s ease;
+  }
+  .cat-head:hover { background: var(--surface-2); }
+  .cat-head .c-icon { font-size: 22px; }
+  .cat-head .c-name { font-weight: 700; font-size: 16px; flex: 1; }
+  .cat-head .c-count {
+    font-size: 12.5px; font-weight: 700; color: var(--accent);
+    background: rgba(192, 132, 252, 0.12); padding: 4px 10px; border-radius: 999px;
+  }
+  .cat-head .caret { transition: transform 0.2s ease; opacity: 0.7; }
+  .cat-block.open .caret { transform: rotate(180deg); }
+  .cat-body { display: none; padding: 0 20px 14px; }
+  .cat-block.open .cat-body { display: block; animation: fade 0.25s ease; }
+  .tool-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .tool-row .t-name { font-weight: 600; font-size: 14.5px; min-width: 150px; }
+  .tool-row .t-desc { color: var(--text-dim); font-size: 13.5px; }
+
+  .no-results {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-dim);
+  }
+  .no-results .big { font-size: 40px; margin-bottom: 10px; }
+
+  /* ---------- Prompts ---------- */
+  .prompt-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .prompt {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    transition: border-color 0.18s ease, background 0.18s ease;
+  }
+  .prompt:hover { border-color: var(--border-strong); background: var(--surface-2); }
+  .prompt-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .prompt-num {
+    width: 30px; height: 30px; flex: 0 0 30px;
+    display: grid; place-items: center;
+    border-radius: 9px;
+    font-weight: 800; font-size: 14px; color: #fff;
+    background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  }
+  .prompt-head h4 { font-size: 15.5px; font-weight: 700; flex: 1; }
+  .copy-btn {
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-dim);
+    font-size: 12.5px; font-weight: 600;
+    padding: 7px 13px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.16s ease;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--border-strong); }
+  .copy-btn.copied { color: var(--good); border-color: var(--good); }
+  .prompt-body {
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-family: "SF Mono", ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #e7defb;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* ---------- Usage guide ---------- */
+  .guide-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 24px;
+    margin-bottom: 16px;
+  }
+  .guide-card h3 { font-size: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .guide-card p, .guide-card li { color: var(--text-dim); font-size: 14.5px; margin-bottom: 8px; }
+  .guide-card ol, .guide-card ul { padding-left: 22px; margin: 8px 0; }
+  .guide-card code {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-family: ui-monospace, "JetBrains Mono", Menlo, monospace;
+    font-size: 12.5px;
+    color: var(--accent-soft);
+  }
+  .callout {
+    border-left: 3px solid var(--warn);
+    background: rgba(251, 191, 36, 0.08);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 14px 0 4px;
+  }
+  .callout strong { color: var(--warn); }
+  .callout.legal { border-left-color: var(--danger); background: rgba(248, 113, 113, 0.08); }
+  .callout.legal strong { color: var(--danger); }
+
+  .step-flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 6px; }
+  .step {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .step .s-num { font-weight: 800; color: var(--accent); font-size: 13px; }
+  .step h5 { font-size: 14.5px; margin: 6px 0 4px; }
+  .step p { font-size: 13px; margin: 0; }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed;
+    bottom: 26px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-weight: 600; font-size: 14px;
+    box-shadow: 0 14px 36px -8px rgba(124, 58, 237, 0.7);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  footer.foot {
+    text-align: center;
+    margin-top: 46px;
+    color: var(--text-faint);
+    font-size: 13px;
+  }
+  footer.foot a { color: var(--accent-soft); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 760px) {
+    .wrap { padding: 18px 14px 60px; }
+    header.hero { padding: 28px 22px; }
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .tab-btn { padding: 9px 16px; font-size: 13.5px; }
+    .tool-row { flex-direction: column; gap: 2px; }
+    .tool-row .t-name { min-width: 0; }
+    .prompt-head { flex-wrap: wrap; }
+    .copy-btn { order: 3; }
+  }
+  @media (max-width: 420px) {
+    .stats { grid-template-columns: 1fr 1fr; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ================= HERO ================= -->
+  <header class="hero">
+    <span class="hero-badge"><span class="dot"></span> Plugin Dashboard · Live</span>
+    <h1>HackingTool <span class="accent">Control Center</span></h1>
+    <p class="tag">An all-in-one launcher for offensive-security tooling — browse <strong>183+ tools</strong> across <strong>20+ categories</strong>, search instantly, and copy battle-tested prompts to drive your engagements.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="num" data-count="183" data-suffix="+">0</div><div class="label">Tools Indexed</div></div>
+      <div class="stat"><div class="num" data-count="20" data-suffix="+">0</div><div class="label">Categories</div></div>
+      <div class="stat"><div class="num" data-count="10" data-suffix="+">0</div><div class="label">Prompt Recipes</div></div>
+      <div class="stat"><div class="num" data-count="100" data-suffix="%">0</div><div class="label">Self-Contained</div></div>
+    </div>
+  </header>
+
+  <!-- ================= TABS ================= -->
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="overview" role="tab">Overview</button>
+    <button class="tab-btn" data-tab="detailed" role="tab">Detailed List</button>
+    <button class="tab-btn" data-tab="guide" role="tab">Usage Guide</button>
+  </nav>
+
+  <!-- ================= OVERVIEW PANEL ================= -->
+  <section class="panel active" id="overview">
+    <h2 class="section-title">Featured Categories</h2>
+    <p class="section-sub">Tap a category to explore its tools in the Detailed List. Use search & filters to narrow things down fast.</p>
+
+    <div class="controls">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="ovSearch" type="text" placeholder="Search 183+ tools and categories…" autocomplete="off" />
+      </div>
+      <div class="filters" id="ovFilters"></div>
+    </div>
+
+    <div class="grid" id="ovGrid"></div>
+    <div class="no-results" id="ovEmpty" style="display:none">
+      <div class="big">🔍</div>
+      <p>No categories or tools match that search.</p>
+    </div>
+  </section>
+
+  <!-- ================= DETAILED PANEL ================= -->
+  <section class="panel" id="detailed">
+    <h2 class="section-title">Complete Tool Index</h2>
+    <p class="section-sub">Every category, expandable. Search matches tool names and descriptions too.</p>
+
+    <div class="controls">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="dtSearch" type="text" placeholder="Search by tool or category…" autocomplete="off" />
+      </div>
+      <button class="chip" id="expandAll">Expand all</button>
+      <button class="chip" id="collapseAll">Collapse all</button>
+    </div>
+
+    <div id="dtList"></div>
+    <div class="no-results" id="dtEmpty" style="display:none">
+      <div class="big">🔍</div>
+      <p>Nothing here matches your search.</p>
+    </div>
+  </section>
+
+  <!-- ================= GUIDE PANEL ================= -->
+  <section class="panel" id="guide">
+    <h2 class="section-title">Best-Practice Prompts</h2>
+    <p class="section-sub">Copy-ready prompts to drive an AI assistant through common security workflows. Click <em>Copy</em> and paste into your tool of choice.</p>
+    <div class="prompt-grid" id="promptGrid"></div>
+
+    <h2 class="section-title" style="margin-top:34px">How To Use This Dashboard</h2>
+    <p class="section-sub">A quick orientation for getting value out of the hackingtool plugin.</p>
+
+    <div class="guide-card">
+      <h3>🚀 Getting Started</h3>
+      <div class="step-flow">
+        <div class="step"><div class="s-num">STEP 1</div><h5>Pick a category</h5><p>Start in Overview, filter by domain (Web, Wireless, Forensics…), and click in.</p></div>
+        <div class="step"><div class="s-num">STEP 2</div><h5>Find a tool</h5><p>Use the Detailed List search to match tool names or descriptions instantly.</p></div>
+        <div class="step"><div class="s-num">STEP 3</div><h5>Grab a prompt</h5><p>Copy a best-practice prompt and adapt the scope to your authorized target.</p></div>
+        <div class="step"><div class="s-num">STEP 4</div><h5>Execute & document</h5><p>Run within scope, capture evidence, and feed results back into reporting.</p></div>
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <h3>🧭 Workflow Tips</h3>
+      <ul>
+        <li>Chain categories in order: <code>Information Gathering → Vuln Analysis → Exploitation → Post-Exploitation → Reporting</code>.</li>
+        <li>Keep a scoped <code>targets.txt</code> and reuse it across recon tools for consistency.</li>
+        <li>Prefer passive recon first; escalate to active scanning only when authorized.</li>
+        <li>Snapshot tool output to timestamped files so your report timeline is defensible.</li>
+      </ul>
+      <div class="callout">
+        <strong>Tip:</strong> Run this dashboard locally (<code>open dashboard.html</code>) or publish via GitHub Pages — it's a single file with zero dependencies and no build step.
+      </div>
+    </div>
+
+    <div class="guide-card">
+      <h3>⚖️ Authorization & Ethics</h3>
+      <p>These tools are for <strong>authorized</strong> security testing, CTFs, research, and defense only.</p>
+      <div class="callout legal">
+        <strong>Always required:</strong> written permission / a signed scope before testing any system you do not own. Unauthorized access is illegal in most jurisdictions. Stay inside scope, respect rules of engagement, and disclose findings responsibly.
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    Built as a self-contained dashboard for the <strong>hackingtool</strong> plugin · Pure HTML/CSS/JS · No build tools ·
+    <a href="#" id="topLink">Back to top ↑</a>
+  </footer>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard ✓</div>
+
+<script>
+/* =========================================================
+   DATA — categories, tools, prompts
+   183 tools across 20 categories
+   ========================================================= */
+const CATEGORIES = [
+  { id:"anon", name:"Anonymity & Hiding", icon:"🕵️", group:"Recon", tools:[
+    {n:"Anonmously Hiding Tools", d:"Mask identity & route traffic anonymously"},
+    {n:"Information Gathering", d:"Bundled OSINT collectors"},
+    {n:"Wordlist Generator", d:"Custom wordlist creation"},
+    {n:"Anonsurf", d:"Force all traffic through Tor"},
+    {n:"Multitor", d:"Run multiple Tor circuits at once"},
+    {n:"ProxyChains", d:"Chain proxies for any TCP tool"},
+    {n:"Tor Router", d:"System-wide Tor transparent proxy"},
+    {n:"Phoneinfoga", d:"Lookup & footprint phone numbers"},
+  ]},
+  { id:"info", name:"Information Gathering", icon:"🔎", group:"Recon", tools:[
+    {n:"Nmap", d:"Network & port discovery"},
+    {n:"Dracnmap", d:"Wrapper for advanced Nmap scans"},
+    {n:"Port Scanning", d:"Fast custom port sweeps"},
+    {n:"Host To IP", d:"Resolve hostnames to addresses"},
+    {n:"Xerosploit", d:"MITM & pentest toolkit"},
+    {n:"RED HAWK", d:"All-in-one recon & vuln scan"},
+    {n:"ReconSpider", d:"Most advanced OSINT crawler"},
+    {n:"IsItDown", d:"Check if a site is up/down"},
+    {n:"Infoga", d:"Email account info gathering"},
+    {n:"ReconDog", d:"Recon Swiss-army knife"},
+    {n:"Striker", d:"Recon & vulnerability scanner"},
+    {n:"SecretFinder", d:"Find API keys/secrets in JS"},
+    {n:"Shodan CLI", d:"Search internet-exposed devices"},
+    {n:"Port Scanner — rangescan", d:"Range-based port scanning"},
+    {n:"Breacher", d:"Find admin login panels"},
+    {n:"theHarvester", d:"Emails, subdomains & hosts OSINT"},
+    {n:"Sherlock", d:"Hunt usernames across social networks"},
+    {n:"Maltego", d:"Link-analysis & OSINT graphing"},
+    {n:"DNSenum", d:"DNS enumeration & zone transfer"},
+    {n:"Sublist3r", d:"Fast subdomain enumeration"},
+    {n:"OWASP Amass", d:"In-depth attack-surface mapping"},
+    {n:"Spiderfoot", d:"Automated OSINT collection"},
+    {n:"Metagoofil", d:"Extract metadata from public docs"},
+  ]},
+  { id:"wordlist", name:"Wordlist Generators", icon:"📝", group:"Recon", tools:[
+    {n:"Cupp", d:"Common User Password Profiler"},
+    {n:"WordlistCreator", d:"Generate wordlists from input"},
+    {n:"Goblin WordGenerator", d:"Permutation-based lists"},
+    {n:"Password list (1.4 Billion)", d:"Massive cleartext corpus"},
+    {n:"Crunch", d:"Pattern-based wordlist builder"},
+    {n:"Mentalist", d:"GUI wordlist generator"},
+    {n:"CeWL", d:"Scrape a site to build a wordlist"},
+    {n:"Pydictor", d:"Powerful dictionary generator"},
+    {n:"Common-User-Passwords", d:"Curated default-credential lists"},
+  ]},
+  { id:"wireless", name:"Wireless Attacks", icon:"📡", group:"Network", tools:[
+    {n:"WiFi-Pumpkin", d:"Rogue AP framework"},
+    {n:"pixiewps", d:"Offline WPS brute-force"},
+    {n:"Bluetooth Honeypot (GATTack)", d:"BLE attack toolkit"},
+    {n:"Fluxion", d:"Evil-twin WPA handshake capture"},
+    {n:"Wifiphisher", d:"Rogue AP phishing framework"},
+    {n:"Wifite", d:"Automated wireless auditor"},
+    {n:"EvilTwin", d:"Clone & capture credentials"},
+    {n:"Fastssh", d:"SSH brute-force over WiFi"},
+    {n:"Howmanypeople", d:"Count nearby devices"},
+    {n:"Aircrack-ng", d:"WEP/WPA key cracking suite"},
+    {n:"Kismet", d:"Wireless sniffer & IDS"},
+    {n:"Reaver", d:"WPS PIN brute-force attack"},
+  ]},
+  { id:"sqli", name:"SQL Injection", icon:"💉", group:"Web", tools:[
+    {n:"Sqlmap", d:"Automated SQLi & DB takeover"},
+    {n:"NoSqlMap", d:"NoSQL injection automation"},
+    {n:"Damn Small SQLi Scanner", d:"Lightweight SQLi finder"},
+    {n:"Explo", d:"Human-readable exploit specs"},
+    {n:"Blisqy", d:"Time-based blind SQLi in headers"},
+    {n:"Leviathan", d:"Mass audit & SQLi toolkit"},
+    {n:"SQLScan", d:"Quick SQLi vulnerability scan"},
+  ]},
+  { id:"phish", name:"Phishing Attacks", icon:"🎣", group:"Web", tools:[
+    {n:"Setoolkit", d:"Social-Engineer Toolkit"},
+    {n:"SocialFish", d:"Phishing page generator"},
+    {n:"HiddenEye", d:"Modern phishing with keylogger"},
+    {n:"Evilginx2", d:"MITM reverse-proxy phishing"},
+    {n:"I-See-You", d:"Geolocation via link"},
+    {n:"SayCheese", d:"Grab target webcam via link"},
+    {n:"QR Code Jacking", d:"Session hijack via QR"},
+    {n:"BlackPhish", d:"Super-fast phishing toolkit"},
+    {n:"Zphisher", d:"Automated phishing templates"},
+    {n:"ShellPhish", d:"Phishing for 18+ social sites"},
+    {n:"AdvPhishing", d:"OTP-bypass phishing toolkit"},
+  ]},
+  { id:"web", name:"Web Attacks", icon:"🌐", group:"Web", tools:[
+    {n:"Web2Attack", d:"Web pentest framework"},
+    {n:"Skipfish", d:"Active web recon scanner"},
+    {n:"SubDomain Finder", d:"Enumerate subdomains"},
+    {n:"CheckURL", d:"Detect malicious URLs"},
+    {n:"Blazy", d:"Login brute-force + CSRF/clickjack"},
+    {n:"Sub-domain TakeOver", d:"Find dangling subdomains"},
+    {n:"Dirb", d:"Directory & file brute-forcer"},
+    {n:"Gobuster", d:"Fast directory/DNS brute-force"},
+    {n:"Nikto", d:"Web server vulnerability scanner"},
+    {n:"WPScan", d:"WordPress security scanner"},
+    {n:"Burp Suite", d:"Web proxy & attack platform"},
+    {n:"Wfuzz", d:"Web application fuzzer"},
+    {n:"Ffuf", d:"Blazing-fast web fuzzer"},
+    {n:"Commix", d:"Command-injection exploitation"},
+    {n:"Arjun", d:"HTTP parameter discovery"},
+    {n:"Nuclei", d:"Template-based vuln scanning"},
+  ]},
+  { id:"post", name:"Post Exploitation", icon:"🪤", group:"Exploitation", tools:[
+    {n:"Vegile — Ghost in the Shell", d:"Persistence & stealth backdoors"},
+    {n:"Chrome Keylogger", d:"Capture browser keystrokes"},
+    {n:"Empire", d:"PowerShell/Python post-exploit C2"},
+    {n:"Meterpreter", d:"Metasploit in-memory agent"},
+    {n:"Mimikatz", d:"Extract Windows credentials"},
+    {n:"LinPEAS", d:"Linux privesc enumeration"},
+    {n:"WinPEAS", d:"Windows privesc enumeration"},
+    {n:"BloodHound", d:"Active Directory attack pathing"},
+    {n:"PowerSploit", d:"PowerShell post-exploit modules"},
+    {n:"LaZagne", d:"Recover locally stored passwords"},
+    {n:"GTFOBins lookup", d:"Abuse binaries for privesc"},
+    {n:"pspy", d:"Snoop on processes without root"},
+  ]},
+  { id:"forensic", name:"Forensic Tools", icon:"🔬", group:"Forensics", tools:[
+    {n:"Autopsy", d:"Digital forensics platform"},
+    {n:"Wireshark", d:"Network protocol analyzer"},
+    {n:"Bulk Extractor", d:"Carve features from disk images"},
+    {n:"Disk Clone & ddrescue", d:"Image & recover failing disks"},
+    {n:"Toolsley", d:"File identity & hashing suite"},
+    {n:"Volatility", d:"Memory forensics framework"},
+    {n:"Binwalk", d:"Firmware analysis & extraction"},
+    {n:"Foremost", d:"File carving by header/footer"},
+    {n:"ExifTool", d:"Read & edit file metadata"},
+    {n:"Sleuth Kit", d:"Command-line disk forensics"},
+    {n:"Scalpel", d:"Fast file-recovery carver"},
+  ]},
+  { id:"payload", name:"Payload Creators", icon:"📦", group:"Exploitation", tools:[
+    {n:"The FatRat", d:"Backdoor & payload generator"},
+    {n:"Brutal", d:"HID payloads for Teensy"},
+    {n:"Stitch", d:"Cross-platform RAT builder"},
+    {n:"MSFvenom Creator", d:"Generate Metasploit payloads"},
+    {n:"Venom Shellcode Generator", d:"Multi-format shellcode"},
+    {n:"Spycam", d:"Webcam payload module"},
+    {n:"Mob-Droid", d:"Android payload generator"},
+    {n:"Enigma", d:"Multiplatform payload dropper"},
+    {n:"Veil", d:"AV-evasion payload framework"},
+    {n:"Shellter", d:"Dynamic shellcode injector"},
+    {n:"Phantom-Evasion", d:"Antivirus evasion generator"},
+  ]},
+  { id:"router", name:"Router Exploitation", icon:"📶", group:"Network", tools:[
+    {n:"RouterSploit", d:"Embedded device exploit framework"},
+    {n:"Fastssh", d:"Mass SSH brute-force"},
+    {n:"Router Scan by Stas'M", d:"Mass router auditing"},
+    {n:"Default Credential Checker", d:"Test factory passwords"},
+  ]},
+  { id:"jam", name:"WiFi Jamming / DDoS", icon:"💥", group:"Network", tools:[
+    {n:"WiFi Jammer", d:"Deauth-based jamming"},
+    {n:"KawaiiDeauther", d:"Mass deauth toolkit"},
+    {n:"SlowLoris", d:"Low-bandwidth HTTP DoS"},
+    {n:"GoldenEye", d:"HTTP DoS testing tool"},
+    {n:"Xerxes", d:"Powerful DoS tester"},
+    {n:"Hulk", d:"HTTP unbearable load king"},
+  ]},
+  { id:"social", name:"Social Media Bruteforce", icon:"🔐", group:"Exploitation", tools:[
+    {n:"Instagram Attack", d:"IG credential brute-force"},
+    {n:"AllinOne SocialMedia Attack", d:"Multi-platform brute-force"},
+    {n:"Facebook Attack", d:"FB login brute-force"},
+    {n:"Application Checker", d:"Validate creds across apps"},
+    {n:"Hydra", d:"Parallel network login cracker"},
+    {n:"Medusa", d:"Speedy modular login brute-forcer"},
+    {n:"Patator", d:"Multi-purpose brute-forcing tool"},
+    {n:"Hashcat", d:"GPU password-hash cracking"},
+    {n:"John the Ripper", d:"Classic password cracker"},
+  ]},
+  { id:"android", name:"Android Hacking", icon:"🤖", group:"Mobile", tools:[
+    {n:"Keydroid", d:"Android keylogger"},
+    {n:"MySMS", d:"SMS-sending payload"},
+    {n:"Lockphish", d:"Grab lock-screen PIN/pattern"},
+    {n:"DroidCam", d:"Remote camera access"},
+    {n:"EvilApp", d:"Hijack sessions via APK"},
+    {n:"HatCloud", d:"Bypass CloudFlare for real IP"},
+    {n:"AndroRAT", d:"Android remote administration"},
+    {n:"Evil-Droid", d:"APK payload framework"},
+    {n:"Drozer", d:"Android security assessment"},
+    {n:"MobSF", d:"Mobile app security framework"},
+  ]},
+  { id:"steg", name:"Steganography", icon:"🖼️", group:"Forensics", tools:[
+    {n:"SteganoHide", d:"Hide data inside images"},
+    {n:"StegnoCracker", d:"Brute-force stego passwords"},
+    {n:"Whitespace", d:"Encode messages in whitespace"},
+    {n:"Steghide", d:"Embed & extract in media files"},
+    {n:"Stegosuite", d:"Java steganography GUI"},
+  ]},
+  { id:"reverse", name:"Reverse Engineering", icon:"🧩", group:"Exploitation", tools:[
+    {n:"Ghidra", d:"NSA software reverse-engineering suite"},
+    {n:"Radare2", d:"Portable RE & debugging framework"},
+    {n:"Apktool", d:"Decode & rebuild Android APKs"},
+    {n:"Jadx", d:"Dex to Java decompiler"},
+    {n:"GDB", d:"GNU debugger"},
+    {n:"Frida", d:"Dynamic instrumentation toolkit"},
+    {n:"IDA Free", d:"Interactive disassembler"},
+  ]},
+  { id:"rat", name:"Remote Admin (RAT)", icon:"🐀", group:"Exploitation", tools:[
+    {n:"Stitch", d:"Python cross-platform RAT"},
+    {n:"Pyshell", d:"Lightweight remote shell"},
+    {n:"QuasarRAT", d:"Windows remote administration"},
+    {n:"Ares", d:"Python C2 over HTTP"},
+    {n:"Covenant", d:".NET command-and-control"},
+  ]},
+  { id:"crawl", name:"Web Crawlers", icon:"🕸️", group:"Web", tools:[
+    {n:"Gospider", d:"Fast Go web spider"},
+    {n:"Photon", d:"Crawler for OSINT & endpoints"},
+    {n:"Katana", d:"Next-gen crawling framework"},
+    {n:"Hakrawler", d:"Discover endpoints & assets"},
+    {n:"Gau", d:"Fetch known URLs from archives"},
+    {n:"Waybackurls", d:"Pull URLs from the Wayback Machine"},
+  ]},
+  { id:"xss", name:"XSS Attacks", icon:"⚡", group:"Web", tools:[
+    {n:"XSStrike", d:"Advanced XSS detection suite"},
+    {n:"Dalfox", d:"Fast parameter XSS scanner"},
+    {n:"XSSer", d:"Automated XSS framework"},
+    {n:"BeEF", d:"Browser exploitation framework"},
+    {n:"XSS-Freak", d:"XSS crawler & tester"},
+  ]},
+  { id:"ddos", name:"DDoS & Stress", icon:"🌊", group:"Network", tools:[
+    {n:"SlowLoris", d:"Connection-exhaustion DoS"},
+    {n:"Asyncrone", d:"UDP/TCP flood tester"},
+    {n:"UFOnet", d:"Botnet-style DDoS toolkit"},
+    {n:"LOIC", d:"Low Orbit Ion Cannon"},
+    {n:"HOIC", d:"High Orbit Ion Cannon"},
+    {n:"Torshammer", d:"Slow-POST DoS over Tor"},
+  ]},
+];
+
+const PROMPTS = [
+  { t:"Scoped Recon Plan", b:"Act as a senior penetration tester. I have written authorization to test {TARGET_DOMAIN}. Draft a phased reconnaissance plan: passive OSINT first, then active enumeration. For each phase list the exact hackingtool categories and tools to use, the command syntax, and what evidence to capture. Keep everything strictly within the authorized scope." },
+  { t:"Nmap Strategy", b:"I'm scanning the authorized host {TARGET_IP}. Recommend an Nmap scan strategy that balances stealth and coverage: which scan types, timing templates, and NSE scripts to run in what order. Explain the trade-offs and give the exact commands." },
+  { t:"Web App Triage", b:"Given the in-scope web application at {TARGET_URL}, build a prioritized testing checklist covering recon, directory brute-forcing, SQLi, XSS, and auth flaws. Map each item to the relevant hackingtool category and the specific tool/command I'd use." },
+  { t:"Wordlist Crafting", b:"Help me build a targeted password wordlist for an authorized engagement against {ORG_NAME}. Suggest CUPP/Crunch inputs based on public org details, the rules to apply, and how to keep the list realistic without becoming unmanageably large." },
+  { t:"SQLi Deep Dive", b:"I found a suspected SQL injection point at parameter {PARAM} on {TARGET_URL} (authorized test). Walk me through a safe, methodical sqlmap workflow: confirmation, DBMS fingerprinting, enumeration, and data extraction — with the flags for each step and how to avoid destructive actions." },
+  { t:"Phishing Simulation", b:"Design an authorized internal phishing simulation for {ORG_NAME}'s security-awareness program. Outline a realistic pretext, which toolkit to use, the metrics to track, and the guardrails that keep it ethical, consented, and within policy." },
+  { t:"Post-Exploitation Checklist", b:"I have a foothold on an authorized Linux target. Give me a post-exploitation checklist: situational awareness, privilege-escalation enumeration (LinPEAS), persistence considerations for a documented test, and exactly what to record for the report. No destructive actions." },
+  { t:"Wireless Audit", b:"Plan an authorized wireless security audit of {SSID}. Cover the legal prerequisites, the right hackingtool wireless tools for handshake capture vs. evil-twin testing, the commands, and how to demonstrate impact responsibly to the client." },
+  { t:"Forensic Triage", b:"I'm doing incident-response triage on a disk image {IMAGE_FILE}. Recommend a forensics workflow using Autopsy, Volatility, and Binwalk: what artifacts to pull first, how to preserve chain of custody, and how to document findings." },
+  { t:"Findings to Report", b:"Turn these raw tool outputs into a professional pentest finding: {PASTE_OUTPUT}. Produce a title, severity (with CVSS rationale), affected asset, reproduction steps, business impact, and concrete remediation guidance written for both engineers and management." },
+];
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+const totalTools = CATEGORIES.reduce((s,c)=>s+c.tools.length,0);
+
+// --- animated stat counters ---
+function animateCounters(){
+  document.querySelectorAll(".stat .num").forEach(el=>{
+    const target = +el.dataset.count;
+    const suffix = el.dataset.suffix || "";
+    const dur = 1100, start = performance.now();
+    function tick(now){
+      const p = Math.min((now-start)/dur,1);
+      const eased = 1-Math.pow(1-p,3);
+      el.textContent = Math.round(target*eased) + suffix;
+      if(p<1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+// --- groups for filters ---
+const GROUPS = ["All", ...Array.from(new Set(CATEGORIES.map(c=>c.group)))];
+
+// --- Overview filter chips ---
+const ovFilters = document.getElementById("ovFilters");
+let activeGroup = "All";
+GROUPS.forEach(g=>{
+  const b=document.createElement("button");
+  b.className="chip"+(g==="All"?" active":"");
+  b.textContent=g;
+  b.onclick=()=>{ activeGroup=g; [...ovFilters.children].forEach(c=>c.classList.toggle("active",c===b)); renderOverview(); };
+  ovFilters.appendChild(b);
+});
+
+// --- Overview grid ---
+const ovGrid=document.getElementById("ovGrid");
+const ovEmpty=document.getElementById("ovEmpty");
+const ovSearch=document.getElementById("ovSearch");
+
+function matchCat(c,q){
+  if(!q) return true;
+  if(c.name.toLowerCase().includes(q)) return true;
+  return c.tools.some(t=>t.n.toLowerCase().includes(q)||t.d.toLowerCase().includes(q));
+}
+
+function renderOverview(){
+  const q=ovSearch.value.trim().toLowerCase();
+  const list=CATEGORIES.filter(c=>(activeGroup==="All"||c.group===activeGroup)&&matchCat(c,q));
+  ovGrid.innerHTML="";
+  list.forEach(c=>{
+    const peek=c.tools.slice(0,3).map(t=>t.n).join(" · ");
+    const div=document.createElement("div");
+    div.className="card";
+    div.tabIndex=0;
+    div.innerHTML=`
+      <div class="icon">${c.icon}</div>
+      <h3>${c.name}</h3>
+      <p>${peek}${c.tools.length>3?" …":""}</p>
+      <div class="meta">
+        <span class="count">${c.tools.length} tools</span>
+        <span class="tools-peek">${c.group}</span>
+      </div>`;
+    div.onclick=()=>openInDetailed(c.id);
+    div.onkeydown=e=>{ if(e.key==="Enter") openInDetailed(c.id); };
+    ovGrid.appendChild(div);
+  });
+  ovEmpty.style.display=list.length?"none":"block";
+  ovGrid.style.display=list.length?"grid":"none";
+}
+ovSearch.addEventListener("input",renderOverview);
+
+// --- Detailed list ---
+const dtList=document.getElementById("dtList");
+const dtEmpty=document.getElementById("dtEmpty");
+const dtSearch=document.getElementById("dtSearch");
+
+function renderDetailed(){
+  const q=dtSearch.value.trim().toLowerCase();
+  dtList.innerHTML="";
+  let shown=0;
+  CATEGORIES.forEach(c=>{
+    const tools=q
+      ? c.tools.filter(t=>t.n.toLowerCase().includes(q)||t.d.toLowerCase().includes(q))
+      : c.tools;
+    const catMatches=c.name.toLowerCase().includes(q);
+    const visibleTools=(q && !catMatches)?tools:c.tools;
+    if(q && !catMatches && tools.length===0) return;
+    shown++;
+    const block=document.createElement("div");
+    block.className="cat-block"+(q?" open":"");
+    block.dataset.cat=c.id;
+    block.innerHTML=`
+      <div class="cat-head">
+        <span class="c-icon">${c.icon}</span>
+        <span class="c-name">${c.name}</span>
+        <span class="c-count">${visibleTools.length}</span>
+        <svg class="caret" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="cat-body">
+        ${visibleTools.map(t=>`<div class="tool-row"><span class="t-name">${t.n}</span><span class="t-desc">${t.d}</span></div>`).join("")}
+      </div>`;
+    block.querySelector(".cat-head").onclick=()=>block.classList.toggle("open");
+    dtList.appendChild(block);
+  });
+  dtEmpty.style.display=shown?"none":"block";
+}
+dtSearch.addEventListener("input",renderDetailed);
+document.getElementById("expandAll").onclick=()=>document.querySelectorAll(".cat-block").forEach(b=>b.classList.add("open"));
+document.getElementById("collapseAll").onclick=()=>document.querySelectorAll(".cat-block").forEach(b=>b.classList.remove("open"));
+
+function openInDetailed(catId){
+  switchTab("detailed");
+  dtSearch.value="";
+  renderDetailed();
+  const block=document.querySelector(`.cat-block[data-cat="${catId}"]`);
+  if(block){ block.classList.add("open"); block.scrollIntoView({behavior:"smooth",block:"center"}); }
+}
+
+// --- Prompts ---
+const promptGrid=document.getElementById("promptGrid");
+PROMPTS.forEach((p,i)=>{
+  const div=document.createElement("div");
+  div.className="prompt";
+  div.innerHTML=`
+    <div class="prompt-head">
+      <span class="prompt-num">${i+1}</span>
+      <h4>${p.t}</h4>
+      <button class="copy-btn" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+        Copy
+      </button>
+    </div>
+    <div class="prompt-body">${p.b}</div>`;
+  const btn=div.querySelector(".copy-btn");
+  btn.onclick=()=>copyText(p.b,btn);
+  promptGrid.appendChild(div);
+});
+
+// --- clipboard ---
+const toast=document.getElementById("toast");
+let toastTimer;
+function showToast(msg){
+  toast.textContent=msg;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>toast.classList.remove("show"),1800);
+}
+function copyText(text,btn){
+  const done=()=>{
+    const orig=btn.innerHTML;
+    btn.classList.add("copied");
+    btn.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Copied`;
+    showToast("Copied to clipboard ✓");
+    setTimeout(()=>{ btn.classList.remove("copied"); btn.innerHTML=orig; },1700);
+  };
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else { fallbackCopy(text,done); }
+}
+function fallbackCopy(text,done){
+  const ta=document.createElement("textarea");
+  ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); done(); }catch(e){ showToast("Copy failed — select manually"); }
+  document.body.removeChild(ta);
+}
+
+// --- Tabs ---
+function switchTab(id){
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===id));
+}
+document.querySelectorAll(".tab-btn").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+
+document.getElementById("topLink").onclick=e=>{ e.preventDefault(); window.scrollTo({top:0,behavior:"smooth"}); };
+
+// --- init ---
+renderOverview();
+renderDetailed();
+animateCounters();
+</script>
+</body>
+</html>
